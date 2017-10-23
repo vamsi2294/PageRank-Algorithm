@@ -52,7 +52,7 @@ public class PageRank extends Configured implements Tool {
 
          String line  = lineText.toString();
          String[] wordNames = line.split("\\t");
-         context.write(one, new Text(wordNames[0].concat("$=$").concat(wordNames[1])));
+         context.write(one, new Text(wordNames[0].concat("#<-").concat(wordNames[1])));
 	 
        
       }
@@ -69,13 +69,13 @@ public class PageRank extends Configured implements Tool {
     	  ArrayList<String> urlsTo = new ArrayList<String>();
     	  
     	  for(Text word: words){
-    		  String[] keyWords = word.toString().split("$=$");
-    		  String pageName = keyWords[0].split("$title$")[0];
+    		  String[] keyWords = word.toString().split("#<-");
+    		  String pageName = keyWords[0].split("#,#")[0];
     		  list.add(pageName);
     		  pageRanks.put(pageName, Double.parseDouble(keyWords[1]));
     		  
     		  ArrayList<String> urls = new ArrayList<String>();
-    		  for(String x: keyWords[0].split("$title$")[1].split(",,$$####$$,")){
+    		  for(String x: keyWords[0].split("#<-")[1].split("#,#")){
     			  urls.add(x);
     			  urlsTo.add(x);
     		  }
@@ -86,10 +86,10 @@ public class PageRank extends Configured implements Tool {
     	  for(int i=0; i<list.size(); i++){
     		  double newPageRank = 0.0;
     		  String page = list.get(i);
-    		  String x = page.concat("$title$");
+    		  String x = page.concat("#<-");
     		  for(String url: urlsFrom.get(page)){
     			  newPageRank = newPageRank+ (pageRanks.get(url)/Collections.frequency(urlsTo, url));
-    			  x = x.concat(url).concat(",$$####$$,");
+    			  x = x.concat(url).concat("#,#");
     		  }
     		  
     		  newPageRank = 0.15 + (0.85 * newPageRank);
